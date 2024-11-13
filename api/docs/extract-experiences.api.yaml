@@ -1,0 +1,138 @@
+openapi: 3.0.0
+info:
+  title: Experience Extraction API
+  version: "1.0.0"
+  description: API for extracting and evaluating clinical experiences using large language models, implemented by Takeshi Kondo.
+servers:
+  - url: https://xxxxxxxxxxxxxxxx
+    description: Production server
+  - url: https://xxxxxxxxxxxxxxxx/dummy
+    description: Dummy server for testing
+paths:
+  /:
+    post:
+      summary: Extract core curriculum codes from clinical experience records
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                key:
+                  type: string
+                  description: The api-key for the API.
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        description: Unique identifier for each student.
+                      content:
+                        type: string
+                        description: Clinical experience log content to analyze.
+              required:
+                - key
+                - data
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [success, failure]
+                  data:
+                    type: array
+                    items:
+                      oneOf:
+                        - type: object
+                          properties:
+                            id:
+                              type: string
+                              description: Student ID.
+                            status:
+                              type: string
+                              enum: [success]
+                            codes:
+                              type: array
+                              items:
+                                type: string
+                              description: Extracted core curriculum codes.
+                            url:
+                              type: string
+                              description: URL for students to verify or edit extracted experiences.
+                        - type: object
+                          properties:
+                            id:
+                              type: string
+                              description: Student ID.
+                            message:
+                              type: string
+                              description: Failure reason.
+                            status:
+                              type: string
+                              enum: [failure]
+                  message:
+                    type: string
+                    description: Failure reason for the entire request, if applicable.
+components:
+  schemas:
+    Input:
+      type: object
+      properties:
+        key:
+          type: string
+          description:  The api-key for the API.
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: Identifier for each clinical experience.
+              content:
+                type: string
+                description: The content to be processed.
+      required:
+        - key
+        - data
+    Output:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [success, failure]
+        data:
+          type: array
+          items:
+            oneOf:
+              - type: object
+                properties:
+                  id:
+                    type: string
+                  status:
+                    type: string
+                    enum: [success]
+                  codes:
+                    type: array
+                    items:
+                      type: string
+                  url:
+                    type: string
+              - type: object
+                properties:
+                  id:
+                    type: string
+                  message:
+                    type: string
+                    description: Reason for failure
+                  status:
+                    type: string
+                    enum: [failure]
